@@ -7,23 +7,14 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UploadController : BaseController
+    public class UploadController : BaseController<UploadController>
     {
-        private IConfiguration configuration;
-        private readonly ILogger<UploadController> _logger;
-        private readonly ResponseContext _responseData;
         public int chunkSize;
-        private string tempFolder;
-        private string destinationFolder;
 
-        public UploadController(IConfiguration configuration, ILogger<UploadController> logger)
+        public UploadController(IConfiguration config, ILogger<UploadController> log) : base(config, log)
         {
-            this.configuration = configuration;
-            _logger = logger;
             chunkSize = 1048576 * Convert.ToInt32(configuration["ChunkSize"]);
-            tempFolder = configuration["TempFolder"];
-            destinationFolder = configuration["TargetFolder"];
-            _responseData = new ResponseContext();
+            targetFolder = $"{targetFolder}/Data";
         }
 
         [HttpPost("UploadChunks")]
@@ -43,13 +34,13 @@ namespace WebAPI.Controllers
                         fs.Write(bytes, 0, bytesRead);
                     }
                 }
+                SetResponse(true, "Chunk uploaded successfully", null);
             }
             catch (Exception ex)
             {
-                _responseData.ErrorMessage = ex.Message;
-                _responseData.IsSuccess = false;
+                SetResponse(false, null, ex.Message);
             }
-            return Ok(_responseData);
+            return Ok(responseData);
         }
 
         [HttpPost("UploadComplete")]
@@ -59,20 +50,20 @@ namespace WebAPI.Controllers
             {
                 FileInfo fi = new FileInfo(fileName);
                 string name = fi.Name.Replace(fi.Extension, string.Empty);
-                string newPath = $"{destinationFolder}/{fileName}";
+                string newPath = $"{targetFolder}/{fileName}";
 
                 string[] filePaths = Directory.GetFiles(tempFolder).Where(p => p.Contains(name)).OrderBy(p => p.Split('_')[1]).ToArray();
                 foreach (string filePath in filePaths)
                 {
                     MergeChunks(newPath, filePath);
                 }
+                SetResponse(true, "File uploaded successfully", null);
             }
             catch (Exception ex)
             {
-                _responseData.ErrorMessage = ex.Message;
-                _responseData.IsSuccess = false;
+                SetResponse(false, null, ex.Message);
             }
-            return Ok(_responseData);
+            return Ok(responseData);
         }
 
         private static void MergeChunks(string chunk1, string chunk2)
