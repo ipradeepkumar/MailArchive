@@ -5,8 +5,6 @@ using Microsoft.Extensions.Logging;
 
 namespace WebAPI.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     public class UploadController : BaseController<UploadController>
     {
         public int chunkSize;
@@ -14,7 +12,7 @@ namespace WebAPI.Controllers
         public UploadController(IConfiguration config, ILogger<UploadController> log) : base(config, log)
         {
             chunkSize = 1048576 * Convert.ToInt32(configuration["ChunkSize"]);
-            targetFolder = $"{targetFolder}/Data";
+            targetFolder = $"{targetFolder}";
         }
 
         [HttpPost("UploadChunks")]
@@ -44,20 +42,20 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("UploadComplete")]
-        public IActionResult UploadComplete(string fileName)
+        public IActionResult UploadComplete(string fileName, string type)
         {
             try
             {
                 FileInfo fi = new FileInfo(fileName);
                 string name = fi.Name.Replace(fi.Extension, string.Empty);
-                string newPath = $"{targetFolder}/{fileName}";
+                string newPath = $"{targetFolder}/{type}/{fileName}";
 
                 string[] filePaths = Directory.GetFiles(tempFolder).Where(p => p.Contains(name)).OrderBy(p => p.Split('_')[1]).ToArray();
                 foreach (string filePath in filePaths)
                 {
                     MergeChunks(newPath, filePath);
                 }
-                SetResponse(true, "File uploaded successfully", null);
+                SetResponse(true, fileName, null);
             }
             catch (Exception ex)
             {

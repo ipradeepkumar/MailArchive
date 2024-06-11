@@ -16,18 +16,18 @@ namespace MailArchive.WebAPI
             {
                 using (var doc = SpreadsheetDocument.Open(path, false))
                 {
-                    var sheets = doc.WorkbookPart.Workbook.GetFirstChild<Sheets>().Elements<Sheet>();
-                    DataTable[] dtArray = new DataTable[sheets.ToList().Count];
+                    var sheets = doc.WorkbookPart?.Workbook.GetFirstChild<Sheets>()?.Elements<Sheet>();
+                    DataTable[] dtArray = new DataTable[(int)(sheets?.ToList().Count)];
                     int counti = 0;
                     foreach (Sheet sheet in sheets)
                     {
                         var dt = new DataTable();
 
-                        var relationshipId = sheet.Id.Value;
-                        var worksheetPart = (WorksheetPart)doc.WorkbookPart.GetPartById(relationshipId);
-                        var workSheet = worksheetPart.Worksheet;
-                        var sheetData = workSheet.GetFirstChild<SheetData>();
-                        var rows = sheetData.Descendants<Row>().ToList();
+                        var relationshipId = sheet?.Id?.Value;
+                        var worksheetPart = (WorksheetPart)doc.WorkbookPart?.GetPartById(relationshipId);
+                        var workSheet = worksheetPart?.Worksheet;
+                        var sheetData = workSheet?.GetFirstChild<SheetData>();
+                        var rows = sheetData?.Descendants<Row>().ToList();
 
                         int rowIndex = 0;
                         foreach (var row in rows) //this will also include your header row...
@@ -38,7 +38,7 @@ namespace MailArchive.WebAPI
                             int colIndex = 0;
                             foreach (var cell in row.Descendants<Cell>())
                             {
-                                var index = GetIndex(cell.CellReference);
+                                var index = GetIndex(cell?.CellReference);
                                 index = (index < 0 ? colIndex++ : index);
 
                                 // Add Columns
@@ -74,13 +74,13 @@ namespace MailArchive.WebAPI
             return null;
         }
 
-        private static string GetCellValue(SpreadsheetDocument document, Cell cell)
+        private static string? GetCellValue(SpreadsheetDocument document, Cell cell)
         {
-            var stringTablePart = document.WorkbookPart.SharedStringTablePart;
-            var value = cell.CellValue.InnerXml;
+            var stringTablePart = document.WorkbookPart?.SharedStringTablePart;
+            var value = cell.CellValue?.InnerXml;
 
             if (cell.DataType != null && cell.DataType.Value == CellValues.SharedString)
-                return stringTablePart.SharedStringTable.ChildElements[int.Parse(value)].InnerText;
+                return stringTablePart?.SharedStringTable.ChildElements[int.Parse(value)].InnerText;
 
             return value;
         }
@@ -120,11 +120,11 @@ namespace MailArchive.WebAPI
                     foreach (System.Data.DataTable table in ds.Tables)
                     {
 
-                        var sheetPart = workbook.WorkbookPart.AddNewPart<WorksheetPart>();
+                        var sheetPart = workbook.WorkbookPart?.AddNewPart<WorksheetPart>();
                         var sheetData = new SheetData();
                         sheetPart.Worksheet = new Worksheet(sheetData);
 
-                        Sheets sheets = workbook.WorkbookPart.Workbook.GetFirstChild<Sheets>();
+                        Sheets sheets = workbook.WorkbookPart?.Workbook.GetFirstChild<Sheets>();
                         string relationshipId = workbook.WorkbookPart.GetIdOfPart(sheetPart);
 
                         uint sheetId = 1;

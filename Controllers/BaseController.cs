@@ -5,6 +5,7 @@ namespace WebAPI.Controllers
 {
 
     [ApiController]
+    [Route("api/[controller]")]
     public class BaseController<T> : ControllerBase
     {
         protected IConfiguration configuration;
@@ -24,12 +25,10 @@ namespace WebAPI.Controllers
 
         protected ResponseContext SetResponse(bool isSuccess, dynamic? data, string? errorMessage)
         {
-            return new ResponseContext
-            {
-                Data = data,
-                IsSuccess = isSuccess,
-                ErrorMessage = errorMessage
-            };
+            responseData.IsSuccess = isSuccess;
+            responseData.ErrorMessage = errorMessage;
+            responseData.Data = data;
+            return responseData;
         }
 
     }

@@ -1,21 +1,40 @@
 import React, { Component } from 'react';
-import '../App.css'
 import { Container, Row, Col } from 'react-bootstrap';
+import axios from "axios";
+import '../App.css';
 
 class MapData extends Component {
   constructor(props) {
     super(props);
+   
   }
   state = {
     tasks: [
-        {id: "1", taskName:"Read book", type:"inProgress", backgroundColor: "red", top: '100px', left: '226px', isActive: false},
-        {id: "2", taskName:"Pay bills", type:"inProgress", backgroundColor:"green", top: '115px', left: '226px', isActive: false},
-        {id: "3", taskName:"Go to the gym", type:"Done", backgroundColor:"blue", top: '130px', left: '226px', isActive: false},
-        {id: "4", taskName:"Play baseball", type:"Done", backgroundColor:"green", top: '145px', left: '226px', isActive: false}
+        {id: "1", taskName:"Read book", type:"inProgress", dragClass:"", backgroundColor: "red", top: '100px', left: '226px', isActive: false},
+        {id: "2", taskName:"Pay bills", type:"inProgress", dragClass:"", backgroundColor:"green", top: '115px', left: '226px', isActive: false},
+        {id: "3", taskName:"Go to the gym", type:"inProgress", dragClass:"", backgroundColor:"blue", top: '130px', left: '226px', isActive: false},
+        {id: "4", taskName:"Play baseball", type:"inProgress", dragClass:"", backgroundColor:"green", top: '145px', left: '226px', isActive: false}
     ]
   }
   componentDidMount(){
     document.addEventListener("keydown", this.onKeyDown);
+    this.getData();
+  }
+  
+
+   
+  getData = async () => {
+    
+    await axios.get("https://localhost:7227/api/MapData/GetData", {
+      params: {
+        dataFile: sessionStorage.getItem('Data'),
+        templateFile: sessionStorage.getItem('Template'),
+      },
+      headers: { 'Content-Type': 'application/json' }
+    }).then(resp => {
+      console.log(resp.data);
+    });
+
   }
   onDragStart = (event, taskName) => {
     console.log('dragstart on div: ', taskName);
@@ -25,7 +44,8 @@ class MapData extends Component {
       {   
           let newTask={
               ...task,
-              isActive:true
+              isActive:true,
+              dragClass: 'active-drag'
           }
           return newTask   
       }
@@ -47,6 +67,7 @@ onDragEnd = (event, taskName) => {
     if (task.taskName == taskName) {
         task.left = event.pageX - 10 + 'px';
         task.top = event.pageY - 10 + 'px';
+        task.dragClass = '';
     }
     return task;
 });
@@ -113,7 +134,8 @@ onDrop = (event, cat) => {
         onDragStart = {(event) => this.onDragStart(event, task.taskName)}
         draggable
         onDragEnd= {(e) => this.onDragEnd(e, task.taskName)}
-        style = {{backgroundColor: task.bgcolor, position:'absolute', left: task.left, top: task.top}}>
+        className={ task.dragClass }
+        style = {{backgroundColor: task.backgroundColor, position:'absolute', left: task.left, top: task.top}}>
         {task.taskName}
       </span>
     );

@@ -4,8 +4,6 @@ using Aspose.Words;
 
 namespace WebAPI.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     public class ConvertorController : BaseController<ConvertorController>
     {
         public ConvertorController(IConfiguration config, ILogger<ConvertorController> log) : base(config, log)
@@ -36,11 +34,11 @@ namespace WebAPI.Controllers
                 var outHtml = doc.Save(tempHtmlPath, SaveFormat.Html);
                 //send back html content to UI
                 var html = System.IO.File.ReadAllText(tempHtmlPath);
-                responseData = base.SetResponse(true, base.Content(html, outHtml.ContentType), null);
+                responseData = SetResponse(true, base.Content(html, outHtml.ContentType), null);
             }
             catch (Exception ex)
             {
-                responseData = base.SetResponse(false, null, ex.Message);
+                responseData = SetResponse(false, null, ex.Message);
             }
             return Ok(responseData);
         }

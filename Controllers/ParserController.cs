@@ -6,8 +6,6 @@ using WebAPI.Controllers;
 
 namespace MailArchive.WebAPI.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     public class ParserController : BaseController<ParserController>
     {
         public ParserController(IConfiguration config, ILogger<ParserController> log) : base(config, log)
@@ -43,9 +41,6 @@ namespace MailArchive.WebAPI.Controllers
                 SetResponse(false, null, ex.Message);
             }
             return Ok(responseData);
-
-            
-
 
         }
 

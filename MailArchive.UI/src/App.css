@@ -48,3 +48,13 @@ div.col-xs-1,div.col-xs-10,div.col-xs-11,div.col-xs-12,div.col-xs-2,div.col-xs-3
   top: 10;
   background-color: #EEEEEE;
 }
+
+
+.active-drag {
+  background: transparent !important;
+  color: #444 !important;
+  border-top-color: #3c8dbc;
+  border-top-width: 2px;
+  border-left-color: #f4f4f4;
+  border-right-color: #f4f4f4;
+}
